@@ -24,10 +24,10 @@ router.get('/', async (req,res) => {
 });
 
 // POST New Image
-router.post('/', async (req, res) => {
+router.post('/', (req, res) => {
   const image = req.body.image;
 
-  if (isBase64(image, { mimeRequired: true })) {
+  if (!isBase64(image, { mimeRequired: true })) {
     return res.status(400).json({ status: 'error', message: 'invalid base64' });
   }
 
