@@ -2,10 +2,12 @@ const express = require('express');
 const router = express.Router();
 const isBase64 = require('is-base64');
 const base64Img = require('base64-img');
+const fs = require('fs');
 
 const { Media } = require('../models');
 
-router.get('/', async(req,res) => {
+// GET All Images
+router.get('/', async (req,res) => {
   const media = await Media.findAll({
     attributes: ['id', 'image']
   });
@@ -21,7 +23,8 @@ router.get('/', async(req,res) => {
   });
 });
 
-router.post('/', (req, res) => {
+// POST New Image
+router.post('/', async (req, res) => {
   const image = req.body.image;
 
   if (isBase64(image, { mimeRequired: true })) {
@@ -43,6 +46,29 @@ router.post('/', (req, res) => {
         image: `${req.get('host')}/images/${filename}`
       }
     })
+  });
+});
+
+// Delete an Image
+router.delete('/:id', async (req,res) => {
+  const id = req.params.id;
+  const media = await Media.findByPk(id);
+
+  if(!media) {
+    return res.status(404).json({ status: 'error', message: err.message});
+  }
+
+  fs.unlink(`./public/${media.image}`, async (err) => {
+    if(err) {
+      return res.status(400).json({ status: 'error', message: err.message });
+    }
+
+    await media.destroy();
+
+    return res.json({
+      status: 'Success',
+      message: 'Image has been deleted.'
+    });
   });
 });
 
