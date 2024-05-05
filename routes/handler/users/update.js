@@ -16,7 +16,7 @@ module.exports = async (req, res) => {
     if(validate.length) {
         return res.status(400).json({
             status: 'error',
-            message: 'Ada yang salah'
+            message: validate
         });
     }
 
